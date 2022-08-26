@@ -1,0 +1,29 @@
+
+export extend Array {
+	groupBy(...fields) {
+		assert len(fields) > 0
+		pickers := [
+			when field {
+				is Str	-> (f => item => item[f])(field)
+				is Int	-> (f => item => item[f])(field)
+				else	-> field
+			} for field in fields
+		]
+		getGroup := item => [picker(item) for picker in pickers]
+		newArr := [[getGroup(item), item] for item in this]
+		newArr.sort(item => item[0])
+		res := []
+		lastGroup := nil
+		for row in newArr {
+			[group, item] := row
+			if group != lastGroup {
+				lastGroup = group
+				res.push([group, [item]])
+			} else {
+				res[-1][1].push(item)
+			}
+		}
+		return res
+	}
+}
+
